@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	DIDPrefix = "did:twitter"
+	DIDPrefix = "did:twit"
 	FirstKey  = "key-1"
 )
 
@@ -17,7 +17,7 @@ func GenerateEd25519Key() (ed25519.PublicKey, ed25519.PrivateKey, error) {
 	return ed25519.GenerateKey(nil)
 }
 
-// KeyFragment appends a key fragment to a DID (e.g. did:twitter:test#key-1)
+// KeyFragment appends a key fragment to a DID (e.g. did:twit:test#key-1)
 func KeyFragment(did, keyRef string) string {
 	return fmt.Sprintf("%s#%s", did, keyRef)
 }

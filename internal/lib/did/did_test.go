@@ -1,4 +1,4 @@
-package lib
+package did
 
 import (
 	"crypto/ed25519"
@@ -12,7 +12,7 @@ func TestCreateDIDDocument(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Generate
-	doc := GenerateDIDDocumentWithKey("did:twitter:test", pubKey)
+	doc := GenerateDIDDocumentWithKey("did:twit:test", pubKey)
 
 	// Sign
 	signed, err := SignDIDDocument(doc, privKey)
@@ -25,7 +25,7 @@ func TestCreateDIDDocument(t *testing.T) {
 
 func TestGenerateSignedDIDDocument(t *testing.T) {
 	// Generate
-	doc, privKey, err := GenerateSignedDIDDocument("did:twitter:test")
+	doc, privKey, err := GenerateSignedDIDDocument("did:twit:test")
 	assert.NoError(t, err)
 
 	// Verify
@@ -34,7 +34,7 @@ func TestGenerateSignedDIDDocument(t *testing.T) {
 }
 
 func TestDeactivateDIDDocument(t *testing.T) {
-	doc, privKey, err := GenerateDIDDocument("did:twitter:test")
+	doc, privKey, err := GenerateDIDDocument("did:twit:test")
 	assert.NoError(t, err)
 
 	// Make sure there's a key

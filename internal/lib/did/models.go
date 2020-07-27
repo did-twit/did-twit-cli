@@ -1,4 +1,4 @@
-package lib
+package did
 
 // SignedDIDDoc wraps a DID Doc with a Linked Data proof object
 type SignedDIDDoc struct {
@@ -37,9 +37,4 @@ type Proof struct {
 	VerificationMethod string `json:"verificationMethod"`
 	Challenge          string `json:"challenge,omitempty"`
 	SignatureValue     string `json:"signatureValue,omitempty"`
-}
-
-type Tweet struct {
-	Tweet string    `json:"tweet"`
-	Proof Proof `json:"proof"`
 }

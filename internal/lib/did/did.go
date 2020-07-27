@@ -1,4 +1,4 @@
-package lib
+package did
 
 import (
 	"bytes"
@@ -9,11 +9,14 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcutil/base58"
+
+	"github.com/did-twitter/did-twitter-cli/internal/lib"
+	"github.com/did-twitter/did-twitter-cli/internal/lib/crypto"
 )
 
 // GenerateDIDDocument generates a new DID document and key-pair for a provided lib name
 func GenerateDIDDocument(name string) (*DIDDoc, ed25519.PrivateKey, error) {
-	pub, priv, err := GenerateEd25519Key()
+	pub, priv, err := lib.GenerateEd25519Key()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -24,12 +27,12 @@ func GenerateDIDDocument(name string) (*DIDDoc, ed25519.PrivateKey, error) {
 // GenerateDIDDocumentWithKey generates a new, unsigned, DID document for the given username and public key
 // Presently, this method does not support service endpoints or multiple keys
 func GenerateDIDDocumentWithKey(username string, key ed25519.PublicKey) DIDDoc {
-	did := fmt.Sprintf("%s:%s", DIDPrefix, username)
-	didWithFragment := KeyFragment(did, FirstKey)
+	did := fmt.Sprintf("%s:%s", lib.DIDPrefix, username)
+	didWithFragment := lib.KeyFragment(did, lib.FirstKey)
 	b58PubKey := base58.Encode(key)
 	verificationMethod := VerificationMethod{
 		ID:              didWithFragment,
-		Type:            KeyType,
+		Type:            crypto.KeyType,
 		Controller:      did,
 		PublicKeyBase58: b58PubKey,
 	}
@@ -43,7 +46,7 @@ func GenerateDIDDocumentWithKey(username string, key ed25519.PublicKey) DIDDoc {
 
 // GenerateSignedDIDDocument creates a key and signs a new DID Document for a provided username
 func GenerateSignedDIDDocument(username string) (*SignedDIDDoc, ed25519.PrivateKey, error) {
-	pub, priv, err := GenerateEd25519Key()
+	pub, priv, err := lib.GenerateEd25519Key()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -75,7 +78,7 @@ func SignDIDDocument(doc DIDDoc, key ed25519.PrivateKey) (*SignedDIDDoc, error) 
 	}
 
 	// Get the proof
-	proof, err := GenerateProof(docBytes, key, verificationMethod.ID)
+	proof, err := crypto.GenerateProof(docBytes, key, verificationMethod.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +96,7 @@ func VerifyDIDDocument(doc SignedDIDDoc, key ed25519.PublicKey) error {
 	if err != nil {
 		return err
 	}
-	return VerifyProof(docBytes, key, *doc.Proof)
+	return crypto.VerifyProof(docBytes, key, *doc.Proof)
 }
 
 // FindKeyAndVerifyDIDDocument tries to verify the signature of the doc with the key in the verification method of the proof

@@ -1,4 +1,4 @@
-package lib
+package tweet
 
 import (
 	"crypto/ed25519"
@@ -6,30 +6,27 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-)
 
-var (
-	priv = "ttVFGrTDz922rCVTF9DFh1UkGZco1miUbvwkLmaK59Qa6bKAKavau6xK7eVHqAgrttyUR5vxjR913UKfJgzZXvZ"
+	"github.com/did-twitter/did-twitter-cli/internal/lib/did"
 )
 
 func TestTweet(t *testing.T) {
 	// Generate DID Doc
-	doc, pk, err := GenerateSignedDIDDocument("didtwitt3r")
+	doc, pk, err := did.GenerateSignedDIDDocument("didtwitt3r")
 	assert.NoError(t, err)
 
-	tweet, err := SignTweet(pk, doc.VerificationMethods[0].ID, "welcome to did:twitter")
+	tweet, err := SignTweet(pk, doc.VerificationMethods[0].ID, "welcome to did:twit")
 	assert.NoError(t, err)
 
 	err = VerifyTweet(pk.Public().(ed25519.PublicKey), *tweet)
 	assert.NoError(t, err)
 
-	tweetString, err := TweetToPost(*tweet)
+	tweetString, err := GenerateTweet(*tweet)
 	assert.NoError(t, err)
-
-	println(*tweetString)
-	println(len(*tweetString))
+	assert.NotEmpty(t, tweetString)
 }
 
+// Utility to return a tweet of size n characters
 func TweetOfSizeN(n int) string {
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	b := make([]rune, n)

@@ -1,4 +1,4 @@
-package pkg
+package did
 
 import (
 	"encoding/json"
@@ -6,10 +6,10 @@ import (
 
 	"github.com/btcsuite/btcutil/base58"
 
-	"github.com/did-twitter/did-twitter-cli/internal/lib"
+	"github.com/did-twitter/did-twitter-cli/internal/lib/did"
 )
 
-func CreateDIDTweet(doc lib.SignedDIDDoc) (*string, error) {
+func CreateDIDTweet(doc did.SignedDIDDoc) (*string, error) {
 	bytes, err := json.Marshal(doc)
 	if err != nil {
 		return nil, err
