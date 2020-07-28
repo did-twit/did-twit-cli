@@ -5,16 +5,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/btcsuite/btcutil/base58"
 
 	"github.com/did-twit/did-twit-cli/internal/lib"
 	"github.com/did-twit/did-twit-cli/internal/lib/did"
+	"github.com/did-twit/did-twit-cli/internal/lib/tweet"
 )
 
 type DIDTwitAPI interface {
 	CreateDIDTweet(username string) (*string, ed25519.PrivateKey, error)
-	GenerateTweet(username, tweet string, privKey ed25519.PrivateKey) (*string, error)
+	ViewDIDTweetDID(createTweet string) (*lib.SignedDIDDoc, error)
+	GenerateTweet(verificationMethod, tweet string, privKey ed25519.PrivateKey) (*string, error)
 
 	DIDAPI
 	TweetAPI
@@ -60,31 +63,48 @@ func (d *didTwit) DeactivateDID(doc lib.DIDDoc, privKey ed25519.PrivateKey) (*li
 	return did.DeactivateDIDDocument(doc, privKey)
 }
 
-func (d *didTwit) PostTweet(tweet lib.Tweet) (*string, error) {
+func (d *didTwit) PostTweet(_ lib.Tweet) (*string, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (d *didTwit) GetTweet(id string) (*lib.Tweet, error) {
+func (d *didTwit) GetTweet(_ string) (*lib.Tweet, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (d *didTwit) DeleteTweet(id string) error {
+func (d *didTwit) DeleteTweet(_ string) error {
 	return errors.New("not implemented")
 }
 
-func (d *didTwit) CreateDIDTweet(username string) (*string, ed25519.PrivateKey, error) {
+// TODO well-defined api responses
+func (d *didTwit) CreateDIDTweet(username string) (*string, *lib.SignedDIDDoc, ed25519.PrivateKey, error) {
 	doc, privKey, err := d.CreateDID(username)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	bytes, err := json.Marshal(doc)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
-	tweet := fmt.Sprintf("%s?create=%s", doc.ID, base58.Encode(bytes))
-	return &tweet, privKey, nil
+	tweetString := fmt.Sprintf("%s?create=%s", doc.ID, base58.Encode(bytes))
+	return &tweetString, doc, privKey, nil
 }
 
-func (d *didTwit) GenerateTweet(username, tweet string, privKey ed25519.PrivateKey) (*string, error) {
+func (d *didTwit) ViewDIDTweetDID(createTweet string) (*lib.SignedDIDDoc, error) {
+	split := strings.Split(createTweet, "?create=")
+	if len(split) != 2 {
+		return nil, errors.New("malformed create tweet")
+	}
+	var doc lib.SignedDIDDoc
+	if err := json.Unmarshal(base58.Decode(split[1]), &doc); err != nil {
+		return nil, err
+	}
+	return &doc, nil
+}
 
+func (d *didTwit) GenerateTweet(verificationMethodRef, t string, privKey ed25519.PrivateKey) (*string, error) {
+	tweetObj, err := tweet.SignTweet(privKey, verificationMethodRef, t)
+	if err != nil {
+		return nil, err
+	}
+	return tweet.GenerateTweet(*tweetObj)
 }

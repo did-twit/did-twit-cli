@@ -55,6 +55,7 @@ func GenerateSignedDIDDocument(username string) (*lib.SignedDIDDoc, ed25519.Priv
 	return signedDoc, privKey, err
 }
 
+// RecoverDIDDocument If you have a private key, you can re-generate your DID Document with it
 func RecoverDIDDocument(username string, key ed25519.PrivateKey) (*lib.SignedDIDDoc, error) {
 	pubKey := key.Public().(ed25519.PublicKey)
 	doc := GenerateDIDDocumentWithKey(username, pubKey)

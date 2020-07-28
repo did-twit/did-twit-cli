@@ -7,15 +7,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateDIDDocument(t *testing.T) {
-	pubKey, privKey, err := ed25519.GenerateKey(nil)
+func TestGenerateDIDDocument(t *testing.T) {
+	testUsername := "test"
+	doc, privKey, err := GenerateDIDDocument(testUsername)
+	assert.NoError(t, err)
+
+	pubKey := privKey.Public().(ed25519.PublicKey)
+
+	// Sign
+	signed, err := SignDIDDocument(*doc, privKey)
+	assert.NoError(t, err)
+
+	// Verify
+	err = VerifyDIDDocument(*signed, pubKey)
 	assert.NoError(t, err)
 
 	// Generate
-	doc := GenerateDIDDocumentWithKey("api:twit:test", pubKey)
+	docWithKey := GenerateDIDDocumentWithKey(testUsername, pubKey)
 
 	// Sign
-	signed, err := SignDIDDocument(doc, privKey)
+	signed, err = SignDIDDocument(docWithKey, privKey)
 	assert.NoError(t, err)
 
 	// Verify
@@ -25,7 +36,7 @@ func TestCreateDIDDocument(t *testing.T) {
 
 func TestGenerateSignedDIDDocument(t *testing.T) {
 	// Generate
-	doc, privKey, err := GenerateSignedDIDDocument("api:twit:test")
+	doc, privKey, err := GenerateSignedDIDDocument("test")
 	assert.NoError(t, err)
 
 	// Verify
@@ -33,8 +44,35 @@ func TestGenerateSignedDIDDocument(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestRecoverDIDDocument(t *testing.T) {
+	// Generate
+	doc, privKey, err := GenerateSignedDIDDocument("test")
+	assert.NoError(t, err)
+
+	// Recover
+	recovered, err := RecoverDIDDocument("test", privKey)
+	assert.NoError(t, err)
+
+	assert.Equal(t, doc.ID, recovered.ID)
+	assert.Equal(t, doc.VerificationMethods[0].ID, recovered.VerificationMethods[0].ID)
+	assert.Equal(t, doc.VerificationMethods[0].PublicKeyBase58, recovered.VerificationMethods[0].PublicKeyBase58)
+	assert.Equal(t, doc.VerificationMethods[0].Controller, recovered.VerificationMethods[0].Controller)
+	assert.Equal(t, doc.VerificationMethods[0].Type, recovered.VerificationMethods[0].Type)
+	assert.Equal(t, doc.Authentication[0], recovered.Authentication[0])
+
+}
+
+func TestFindKeyAndVerifyDIDDocument(t *testing.T) {
+	// Generate
+	doc, _, err := GenerateSignedDIDDocument("test")
+	assert.NoError(t, err)
+
+	err = FindKeyAndVerifyDIDDocument(*doc)
+	assert.NoError(t, err)
+}
+
 func TestDeactivateDIDDocument(t *testing.T) {
-	doc, privKey, err := GenerateDIDDocument("api:twit:test")
+	doc, privKey, err := GenerateDIDDocument("test")
 	assert.NoError(t, err)
 
 	// Make sure there's a key

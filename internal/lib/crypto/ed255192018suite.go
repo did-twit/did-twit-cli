@@ -37,7 +37,7 @@ var (
 // GenerateProof takes in an unsigned document in byte array form, canonicalizes it, and appends a proof value
 // with a nonce before signing the combination. The signature is added to the proof value, and the proof with
 // signature is returned. This is in compliance with the Ed25519 2018 Linked Data Signature Suite.
-func GenerateProof(input []byte, key ed25519.PrivateKey, verificationMethod string) (*lib.Proof, error) {
+func GenerateProof(input []byte, key ed25519.PrivateKey, verificationMethodRef string) (*lib.Proof, error) {
 	canonicalized, err := Canonicalize(input)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func GenerateProof(input []byte, key ed25519.PrivateKey, verificationMethod stri
 	proof := lib.Proof{
 		Type:               SignatureType,
 		Created:            time.Now().Format(time.RFC3339),
-		VerificationMethod: verificationMethod,
+		VerificationMethod: verificationMethodRef,
 		Challenge:          uuid.New().String(),
 	}
 

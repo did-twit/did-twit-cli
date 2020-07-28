@@ -36,12 +36,12 @@ func TestGenerateAndVerifyProof(t *testing.T) {
 	pubKey, privKey, err := ed25519.GenerateKey(nil)
 	assert.NoError(t, err)
 
-	verificationMethod := lib.KeyFragment("api:twit:test", lib.FirstKey)
+	verificationMethodRef := lib.KeyFragment("did:twit:test", lib.FirstKey)
 
-	proof, err := GenerateProof(input, privKey, verificationMethod)
+	proof, err := GenerateProof(input, privKey, verificationMethodRef)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, proof)
-	assert.Equal(t, verificationMethod, proof.VerificationMethod)
+	assert.Equal(t, verificationMethodRef, proof.VerificationMethod)
 
 	// Verify
 	err = VerifyProof(input, pubKey, *proof)

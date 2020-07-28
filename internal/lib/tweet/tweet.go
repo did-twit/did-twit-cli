@@ -3,7 +3,9 @@ package tweet
 import (
 	"crypto/ed25519"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/btcsuite/btcutil/base58"
 
@@ -11,13 +13,16 @@ import (
 	"github.com/did-twit/did-twit-cli/internal/lib/crypto"
 )
 
-func SignTweet(privKey ed25519.PrivateKey, verificationMethod, tweet string) (*Tweet, error) {
+func SignTweet(privKey ed25519.PrivateKey, verificationMethodRef, tweet string) (*lib.Tweet, error) {
+	if !strings.Contains(verificationMethodRef, "#") {
+		return nil, fmt.Errorf("bad verification method: %s", verificationMethodRef)
+	}
 	t := lib.Tweet{Tweet: tweet}
 	tBytes, err := json.Marshal(t)
 	if err != nil {
 		return nil, err
 	}
-	proof, err := crypto.GenerateProof(tBytes, privKey, verificationMethod)
+	proof, err := crypto.GenerateProof(tBytes, privKey, verificationMethodRef)
 	if err != nil {
 		return nil, err
 	}
@@ -25,12 +30,12 @@ func SignTweet(privKey ed25519.PrivateKey, verificationMethod, tweet string) (*T
 	return &t, nil
 }
 
-func VerifyTweet(key ed25519.PublicKey, tweet lib.Tweet) error {
+func VerifyTweet(tweet lib.Tweet, pubKey ed25519.PublicKey) error {
 	bytes, err := json.Marshal(tweet)
 	if err != nil {
 		return err
 	}
-	return crypto.VerifyProof(bytes, key, tweet.Proof)
+	return crypto.VerifyProof(bytes, pubKey, tweet.Proof)
 }
 
 func GenerateTweet(tweet lib.Tweet) (*string, error) {
@@ -40,4 +45,21 @@ func GenerateTweet(tweet lib.Tweet) (*string, error) {
 	}
 	t := fmt.Sprintf("%s.%s", tweet.Tweet, base58.Encode(bytes))
 	return &t, nil
+}
+
+// ReconstructDIDDocument given a did:twit tweet, re-construct the DID Document
+func ReconstructTweet(tweet string) (*lib.Tweet, error) {
+	split := strings.Split(tweet, ".")
+	if len(split) != 2 {
+		return nil, errors.New("malformed tweet")
+	}
+	proofBytes := base58.Decode(split[1])
+	var proof lib.Proof
+	if err := json.Unmarshal(proofBytes, &proof); err != nil {
+		return nil, err
+	}
+	return &lib.Tweet{
+		Tweet: split[0],
+		Proof: proof,
+	}, nil
 }
