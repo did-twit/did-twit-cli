@@ -1,4 +1,4 @@
-module github.com/did-twitter/did-twitter-cli
+module github.com/did-twit/did-twit-cli
 
 go 1.14
 

@@ -13,8 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/piprate/json-gold/ld"
 
-	"github.com/did-twitter/did-twitter-cli/internal/lib"
-	"github.com/did-twitter/did-twitter-cli/internal/lib/did"
+	"github.com/did-twit/did-twit-cli/internal/lib"
 )
 
 // Represents signing of a document using the Ed25519 2018 Signature suite https://w3c-ccg.github.io/lds-ed25519-2018/
@@ -38,14 +37,14 @@ var (
 // GenerateProof takes in an unsigned document in byte array form, canonicalizes it, and appends a proof value
 // with a nonce before signing the combination. The signature is added to the proof value, and the proof with
 // signature is returned. This is in compliance with the Ed25519 2018 Linked Data Signature Suite.
-func GenerateProof(input []byte, key ed25519.PrivateKey, verificationMethod string) (*did.Proof, error) {
+func GenerateProof(input []byte, key ed25519.PrivateKey, verificationMethod string) (*lib.Proof, error) {
 	canonicalized, err := Canonicalize(input)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create proof without signature value to be signed over
-	proof := did.Proof{
+	proof := lib.Proof{
 		Type:               SignatureType,
 		Created:            time.Now().Format(time.RFC3339),
 		VerificationMethod: verificationMethod,
@@ -72,7 +71,7 @@ func GenerateProof(input []byte, key ed25519.PrivateKey, verificationMethod stri
 // VerifyProof takes in an unsigned document in byte array form, canonicalizes it, and appends the provided
 // proof value without the signature value set. Then the proof without signature is appended to the input. The result
 // is verified using the provided public key value.
-func VerifyProof(input []byte, key ed25519.PublicKey, proof did.Proof) error {
+func VerifyProof(input []byte, key ed25519.PublicKey, proof lib.Proof) error {
 	if proof.SignatureValue == "" {
 		return errors.New("cannot verify proof without a signatureValue")
 	}
@@ -84,7 +83,7 @@ func VerifyProof(input []byte, key ed25519.PublicKey, proof did.Proof) error {
 	}
 
 	// Copy proof and unset signature
-	var withoutSignature did.Proof
+	var withoutSignature lib.Proof
 	if err := lib.Copy(&proof, &withoutSignature); err != nil {
 		return err
 	}
@@ -123,7 +122,7 @@ func Canonicalize(input []byte) ([]byte, error) {
 	return []byte(normalized.(string)), nil
 }
 
-func appendUnsignedProof(input []byte, proof did.Proof) ([]byte, error) {
+func appendUnsignedProof(input []byte, proof lib.Proof) ([]byte, error) {
 	// Can't already have a signature
 	if proof.SignatureValue != "" {
 		return nil, errors.New("proof already has a signature value")

@@ -1,4 +1,4 @@
-package did
+package api
 
 import (
 	"testing"
@@ -6,7 +6,8 @@ import (
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/did-twitter/did-twitter-cli/internal/lib/did"
+	"github.com/did-twit/did-twit-cli/internal/lib/did"
+	"github.com/did-twit/did-twit-cli/pkg/tweet"
 )
 
 var (
@@ -18,18 +19,19 @@ func TestRecoverDIDTweet(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, doc)
 
-	tweet, err := CreateDIDTweet(*doc)
+	tweet, err := tweet.CreateDIDTweet(*doc)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, tweet)
 }
 
 func TestCreateDIDTweet(t *testing.T) {
-	d := didTwit{username: "test"}
-	doc, err := d.CreateDID()
+	d := didTwit{}
+	doc, privKey, err := d.CreateDID("test")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, doc)
+	assert.NotEmpty(t, privKey)
 
-	tweet, err := CreateDIDTweet(*doc)
+	tweet, err := tweet.CreateDIDTweet(*doc)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, tweet)
 }

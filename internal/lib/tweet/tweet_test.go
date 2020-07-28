@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/did-twitter/did-twitter-cli/internal/lib/did"
+	"github.com/did-twit/did-twit-cli/internal/lib/did"
 )
 
 func TestTweet(t *testing.T) {
@@ -15,7 +15,7 @@ func TestTweet(t *testing.T) {
 	doc, pk, err := did.GenerateSignedDIDDocument("didtwitt3r")
 	assert.NoError(t, err)
 
-	tweet, err := SignTweet(pk, doc.VerificationMethods[0].ID, "welcome to did:twit")
+	tweet, err := SignTweet(pk, doc.VerificationMethods[0].ID, "welcome to api:twit")
 	assert.NoError(t, err)
 
 	err = VerifyTweet(pk.Public().(ed25519.PublicKey), *tweet)

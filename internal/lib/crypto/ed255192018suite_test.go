@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/did-twitter/did-twitter-cli/internal/lib"
+	"github.com/did-twit/did-twit-cli/internal/lib"
 )
 
 func TestCanonicalize(t *testing.T) {
@@ -36,7 +36,7 @@ func TestGenerateAndVerifyProof(t *testing.T) {
 	pubKey, privKey, err := ed25519.GenerateKey(nil)
 	assert.NoError(t, err)
 
-	verificationMethod := lib.KeyFragment("did:twit:test", lib.FirstKey)
+	verificationMethod := lib.KeyFragment("api:twit:test", lib.FirstKey)
 
 	proof, err := GenerateProof(input, privKey, verificationMethod)
 	assert.NoError(t, err)

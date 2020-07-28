@@ -7,11 +7,12 @@ import (
 
 	"github.com/btcsuite/btcutil/base58"
 
-	"github.com/did-twitter/did-twitter-cli/internal/lib/crypto"
+	"github.com/did-twit/did-twit-cli/internal/lib"
+	"github.com/did-twit/did-twit-cli/internal/lib/crypto"
 )
 
 func SignTweet(privKey ed25519.PrivateKey, verificationMethod, tweet string) (*Tweet, error) {
-	t := Tweet{Tweet: tweet}
+	t := lib.Tweet{Tweet: tweet}
 	tBytes, err := json.Marshal(t)
 	if err != nil {
 		return nil, err
@@ -24,7 +25,7 @@ func SignTweet(privKey ed25519.PrivateKey, verificationMethod, tweet string) (*T
 	return &t, nil
 }
 
-func VerifyTweet(key ed25519.PublicKey, tweet Tweet) error {
+func VerifyTweet(key ed25519.PublicKey, tweet lib.Tweet) error {
 	bytes, err := json.Marshal(tweet)
 	if err != nil {
 		return err
@@ -32,7 +33,7 @@ func VerifyTweet(key ed25519.PublicKey, tweet Tweet) error {
 	return crypto.VerifyProof(bytes, key, tweet.Proof)
 }
 
-func GenerateTweet(tweet Tweet) (*string, error) {
+func GenerateTweet(tweet lib.Tweet) (*string, error) {
 	bytes, err := json.Marshal(tweet.Proof)
 	if err != nil {
 		return nil, err

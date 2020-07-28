@@ -12,7 +12,7 @@ func TestCreateDIDDocument(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Generate
-	doc := GenerateDIDDocumentWithKey("did:twit:test", pubKey)
+	doc := GenerateDIDDocumentWithKey("api:twit:test", pubKey)
 
 	// Sign
 	signed, err := SignDIDDocument(doc, privKey)
@@ -25,7 +25,7 @@ func TestCreateDIDDocument(t *testing.T) {
 
 func TestGenerateSignedDIDDocument(t *testing.T) {
 	// Generate
-	doc, privKey, err := GenerateSignedDIDDocument("did:twit:test")
+	doc, privKey, err := GenerateSignedDIDDocument("api:twit:test")
 	assert.NoError(t, err)
 
 	// Verify
@@ -34,7 +34,7 @@ func TestGenerateSignedDIDDocument(t *testing.T) {
 }
 
 func TestDeactivateDIDDocument(t *testing.T) {
-	doc, privKey, err := GenerateDIDDocument("did:twit:test")
+	doc, privKey, err := GenerateDIDDocument("api:twit:test")
 	assert.NoError(t, err)
 
 	// Make sure there's a key
@@ -44,7 +44,11 @@ func TestDeactivateDIDDocument(t *testing.T) {
 	signedDoc, err := SignDIDDocument(*doc, privKey)
 	assert.NoError(t, err)
 
-	deactivated, err := DeactivateDIDDocument(signedDoc.DIDDoc, *signedDoc.Proof)
+	deactivated, err := DeactivateDIDDocument(signedDoc.DIDDoc, privKey)
+	assert.NoError(t, err)
+
+	// Validate signature on deactivated with pub key
+	err = VerifyDIDDocument(*deactivated, privKey.Public().(ed25519.PublicKey))
 	assert.NoError(t, err)
 
 	assert.NotEmpty(t, deactivated)
