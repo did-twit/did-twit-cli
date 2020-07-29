@@ -1,13 +1,12 @@
 package crypto
 
 import (
-	"crypto/ed25519"
 	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/did-twit/did-twit-cli/internal/lib"
+	"github.com/did-twit/did-twit-cli/internal/lib/did"
 )
 
 func TestCanonicalize(t *testing.T) {
@@ -33,15 +32,16 @@ func TestGenerateAndVerifyProof(t *testing.T) {
 	// Generate
 	input := []byte(`{"test":"data"}`)
 
-	pubKey, privKey, err := ed25519.GenerateKey(nil)
-	assert.NoError(t, err)
+	id, privKey, err := did.CreateDID("test")
 
-	verificationMethodRef := lib.KeyFragment("did:twit:test", lib.FirstKey)
-
-	proof, err := GenerateProof(input, privKey, verificationMethodRef)
+	proof, err := GenerateProof(input, privKey, *id)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, proof)
-	assert.Equal(t, verificationMethodRef, proof.VerificationMethod)
+	assert.Equal(t, *id, proof.VerificationMethod)
+
+	// Recover pub lib
+	pubKey, err := did.ExpandDID(*id)
+	assert.NoError(t, err)
 
 	// Verify
 	err = VerifyProof(input, pubKey, *proof)

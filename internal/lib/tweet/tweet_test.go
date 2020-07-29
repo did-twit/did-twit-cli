@@ -2,6 +2,7 @@ package tweet
 
 import (
 	"crypto/ed25519"
+	"fmt"
 	"math/rand"
 	"testing"
 
@@ -12,29 +13,32 @@ import (
 
 func TestSignGenerateAndVerifyTweet(t *testing.T) {
 	// Generate DID Doc
-	doc, pk, err := did.GenerateSignedDIDDocument("didtwitt3r")
+	id, privKey, err := did.CreateDID("didtwitt3r")
 	assert.NoError(t, err)
 
-	tweet, err := SignTweet(pk, doc.VerificationMethods[0].ID, "welcome to api:twit")
+	tweet, err := SignTweet(privKey, *id, "hello world")
 	assert.NoError(t, err)
 
-	err = VerifyTweet(*tweet, pk.Public().(ed25519.PublicKey))
+	err = VerifyTweet(*tweet, privKey.Public().(ed25519.PublicKey))
 	assert.NoError(t, err)
 
 	tweetString, err := GenerateTweet(*tweet)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, tweetString)
+
+	fmt.Printf("Tweet is: %s\n", *tweetString)
+	fmt.Printf("Tweet length: %d\n", len(*tweetString))
 }
 
 func TestReconstructTweet(t *testing.T) {
-	// Generate DID Doc
-	doc, pk, err := did.GenerateSignedDIDDocument("didtwitt3r")
+	// Generate DID
+	id, privKey, err := did.CreateDID("didtwitt3r")
 	assert.NoError(t, err)
 
-	tweet, err := SignTweet(pk, doc.VerificationMethods[0].ID, "welcome to api:twit")
+	tweet, err := SignTweet(privKey, *id, "welcome to api:twit")
 	assert.NoError(t, err)
 
-	err = VerifyTweet(*tweet, pk.Public().(ed25519.PublicKey))
+	err = VerifyTweet(*tweet, privKey.Public().(ed25519.PublicKey))
 	assert.NoError(t, err)
 
 	tweetString, err := GenerateTweet(*tweet)
@@ -45,6 +49,26 @@ func TestReconstructTweet(t *testing.T) {
 	reconstructed, err := ReconstructTweet(*tweetString)
 	assert.NoError(t, err)
 	assert.Equal(t, tweet, reconstructed)
+}
+
+// Tweets grow linearly in size
+// 1 character = 438 chars = 2 tweets
+// 240 characters = 677 chars = 3 tweets
+func TestTweetSize(t *testing.T) {
+	// Generate DID
+	id, privKey, err := did.CreateDID("didtwitt3r")
+	assert.NoError(t, err)
+
+	for i := 1; i <= 240; i++ {
+		tweet := tweetOfSizeN(i)
+		signedTweet, err := SignTweet(privKey, *id, tweet)
+		assert.NoError(t, err)
+
+		tweetString, err := GenerateTweet(*signedTweet)
+		assert.NoError(t, err)
+
+		fmt.Printf("Tweet of <%d>char size<%d>\n", i, len(*tweetString))
+	}
 }
 
 // Utility to return a tweet of size n characters

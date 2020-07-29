@@ -13,16 +13,13 @@ import (
 	"github.com/did-twit/did-twit-cli/internal/lib/crypto"
 )
 
-func SignTweet(privKey ed25519.PrivateKey, verificationMethodRef, tweet string) (*lib.Tweet, error) {
-	if !strings.Contains(verificationMethodRef, "#") {
-		return nil, fmt.Errorf("bad verification method: %s", verificationMethodRef)
-	}
+func SignTweet(privKey ed25519.PrivateKey, didTwit, tweet string) (*lib.Tweet, error) {
 	t := lib.Tweet{Tweet: tweet}
 	tBytes, err := json.Marshal(t)
 	if err != nil {
 		return nil, err
 	}
-	proof, err := crypto.GenerateProof(tBytes, privKey, verificationMethodRef)
+	proof, err := crypto.GenerateProof(tBytes, privKey, didTwit)
 	if err != nil {
 		return nil, err
 	}
@@ -39,11 +36,11 @@ func VerifyTweet(tweet lib.Tweet, pubKey ed25519.PublicKey) error {
 }
 
 func GenerateTweet(tweet lib.Tweet) (*string, error) {
-	bytes, err := json.Marshal(tweet.Proof)
+	proofBytes, err := json.Marshal(tweet.Proof)
 	if err != nil {
 		return nil, err
 	}
-	t := fmt.Sprintf("%s.%s", tweet.Tweet, base58.Encode(bytes))
+	t := fmt.Sprintf("%s.%s", tweet.Tweet, base58.Encode(proofBytes))
 	return &t, nil
 }
 
