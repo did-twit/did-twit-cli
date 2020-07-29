@@ -1,4 +1,4 @@
-package lib
+package internal
 
 type Tweet struct {
 	Tweet string `json:"tweet"`

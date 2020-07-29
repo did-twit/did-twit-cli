@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/piprate/json-gold/ld"
 
-	key2 "github.com/did-twit/did-twit-cli/internal/lib"
+	"github.com/did-twit/did-twit-cli/internal"
 )
 
 // Represents signing of a document using the Ed25519 2018 Signature suite https://w3c-ccg.github.io/lds-ed25519-2018/
@@ -37,14 +37,14 @@ var (
 // GenerateProof takes in an unsigned document in byte array form, canonicalizes it, and appends a proof value
 // with a nonce before signing the combination. The signature is added to the proof value, and the proof with
 // signature is returned. This is in compliance with the Ed25519 2018 Linked Data Signature Suite.
-func GenerateProof(input []byte, key ed25519.PrivateKey, didTwit string) (*key2.Proof, error) {
+func GenerateProof(input []byte, key ed25519.PrivateKey, didTwit string) (*internal.Proof, error) {
 	canonicalized, err := Canonicalize(input)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create proof without signature value to be signed over
-	proof := key2.Proof{
+	proof := internal.Proof{
 		Type:               SignatureType,
 		Created:            time.Now().Format(time.RFC3339),
 		VerificationMethod: didTwit,
@@ -71,7 +71,7 @@ func GenerateProof(input []byte, key ed25519.PrivateKey, didTwit string) (*key2.
 // VerifyProof takes in an unsigned document in byte array form, canonicalizes it, and appends the provided
 // proof value without the signature value set. Then the proof without signature is appended to the input. The result
 // is verified using the provided public lib value.
-func VerifyProof(input []byte, key ed25519.PublicKey, proof key2.Proof) error {
+func VerifyProof(input []byte, key ed25519.PublicKey, proof internal.Proof) error {
 	if proof.SignatureValue == "" {
 		return errors.New("cannot verify proof without a signatureValue")
 	}
@@ -83,8 +83,8 @@ func VerifyProof(input []byte, key ed25519.PublicKey, proof key2.Proof) error {
 	}
 
 	// Copy proof and unset signature
-	var withoutSignature key2.Proof
-	if err := key2.Copy(&proof, &withoutSignature); err != nil {
+	var withoutSignature internal.Proof
+	if err := internal.Copy(&proof, &withoutSignature); err != nil {
 		return err
 	}
 	withoutSignature.SignatureValue = ""
@@ -122,7 +122,7 @@ func Canonicalize(input []byte) ([]byte, error) {
 	return []byte(normalized.(string)), nil
 }
 
-func appendUnsignedProof(input []byte, proof key2.Proof) ([]byte, error) {
+func appendUnsignedProof(input []byte, proof internal.Proof) ([]byte, error) {
 	// Can't already have a signature
 	if proof.SignatureValue != "" {
 		return nil, errors.New("proof already has a signature value")

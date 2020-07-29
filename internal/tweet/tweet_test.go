@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/did-twit/did-twit-cli/internal/lib/did"
+	"github.com/did-twit/did-twit-cli/internal/did"
 )
 
 func TestSignGenerateAndVerifyTweet(t *testing.T) {

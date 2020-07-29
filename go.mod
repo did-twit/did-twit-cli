@@ -7,4 +7,5 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/piprate/json-gold v0.3.0
 	github.com/stretchr/testify v1.6.1
+	github.com/tidwall/buntdb v1.1.2
 )

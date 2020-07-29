@@ -8,7 +8,7 @@ import (
 
 	"github.com/btcsuite/btcutil/base58"
 
-	"github.com/did-twit/did-twit-cli/internal/lib"
+	"github.com/did-twit/did-twit-cli/internal"
 )
 
 const (
@@ -23,7 +23,7 @@ const (
 )
 
 func CreateDID(username string) (*string, ed25519.PrivateKey, error) {
-	pubKey, privKey, err := lib.GenerateEd25519Key()
+	pubKey, privKey, err := internal.GenerateEd25519Key()
 	if err != nil {
 		return nil, nil, err
 	}
