@@ -58,7 +58,7 @@ var createDIDCmd = &cobra.Command{
 		}
 		user := viper.GetString(usernameFlag)
 		if user == "" {
-			return errors.New("username cannot be empty")
+			return errors.New("username cannot be empty. supply a username with the \"--user\" flag")
 		}
 		did, privKey, err := did.CreateDID(user)
 		if err != nil {
@@ -86,7 +86,7 @@ var viewDIDCmd = &cobra.Command{
 		}
 		id := viper.GetString(didFlag)
 		if id == "" {
-			return errors.New("DID cannot be empty")
+			return errors.New("DID cannot be empty. Supply a DID with the \"--did\" flag ")
 		}
 		res, err := db.Read(id)
 		if err != nil {

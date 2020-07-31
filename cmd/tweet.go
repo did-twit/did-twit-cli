@@ -32,7 +32,7 @@ var TweetCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		didTwit := viper.GetString(didFlag)
 		if didTwit == "" {
-			return errors.New("must supply a user to author the tweet")
+			return errors.New("must supply a user to author the tweet with the \"--did\" flag")
 		}
 
 		create := viper.GetBool(createFlag)
@@ -43,7 +43,7 @@ var TweetCmd = &cobra.Command{
 			text = viper.GetString(tweetFlag)
 		}
 		if text == "" {
-			return errors.New("tweet text cannot be empty")
+			return errors.New("tweet text cannot be empty. supply text with the \"--tweet\" flag")
 		}
 
 		db, err := storage.NewConnection()
@@ -77,8 +77,8 @@ var TweetCmd = &cobra.Command{
 }
 
 func createTweet(did string) string {
-	return fmt.Sprintf("I've created a did:twit method with the the identifier %s! I will be using this identitiy"+
-		" to verify Tweets, and other information originating from this account. Find out more at didtwit.io!", did)
+	return fmt.Sprintf("I've created a did:twit method with the the identifier %s! I will be using this identity"+
+		" to verify Tweets, and other information originating from this account. Find out more at didtwit.io", did)
 }
 
 var VerifyCmd = &cobra.Command{
