@@ -6,8 +6,12 @@ import (
 	"github.com/tidwall/buntdb"
 )
 
+const (
+	didIndex = "dids"
+)
+
 type DB struct {
-	*buntdb.DB
+	db *buntdb.DB
 }
 
 func NewConnection() (*DB, error) {
@@ -15,15 +19,18 @@ func NewConnection() (*DB, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return &DB{DB: db}, err
+	if err := db.CreateIndex(didIndex, "did:twit:*", buntdb.IndexString); err != nil {
+		return nil, err
+	}
+	return &DB{db: db}, err
 }
 
 func (db *DB) Close() error {
-	return db.DB.Close()
+	return db.db.Close()
 }
 
 func (db *DB) Write(key, value string) error {
-	return db.Update(func(tx *buntdb.Tx) error {
+	return db.db.Update(func(tx *buntdb.Tx) error {
 		_, _, err := tx.Set(key, value, nil)
 		return err
 	})
@@ -31,7 +38,7 @@ func (db *DB) Write(key, value string) error {
 
 func (db *DB) Read(key string) (*string, error) {
 	var res string
-	err := db.View(func(tx *buntdb.Tx) error {
+	err := db.db.View(func(tx *buntdb.Tx) error {
 		val, err := tx.Get(key)
 		if err != nil {
 			return err
@@ -40,4 +47,16 @@ func (db *DB) Read(key string) (*string, error) {
 		return nil
 	})
 	return &res, err
+}
+
+func (db *DB) ListDIDs() ([]string, error) {
+	var dids []string
+	err := db.db.View(func(tx *buntdb.Tx) error {
+		_ = tx.Ascend(didIndex, func(key, val string) bool {
+			dids = append(dids, key)
+			return true
+		})
+		return nil
+	})
+	return dids, err
 }

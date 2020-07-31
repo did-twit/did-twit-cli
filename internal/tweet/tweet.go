@@ -35,7 +35,7 @@ func VerifyTweet(tweet internal.Tweet, pubKey ed25519.PublicKey) error {
 	return crypto.VerifyProof(bytes, pubKey, tweet.Proof)
 }
 
-func GenerateTweet(tweet internal.Tweet) (*string, error) {
+func GenerateTweetText(tweet internal.Tweet) (*string, error) {
 	proofBytes, err := json.Marshal(tweet.Proof)
 	if err != nil {
 		return nil, err
@@ -47,16 +47,18 @@ func GenerateTweet(tweet internal.Tweet) (*string, error) {
 // ReconstructDIDDocument given a did:twit tweet, re-construct the DID Document
 func ReconstructTweet(tweet string) (*internal.Tweet, error) {
 	split := strings.Split(tweet, ".")
-	if len(split) != 2 {
+	p := split[len(split)-1]
+	t := strings.Join(split[:len(split)-1], ".")
+	if len(split) < 2 {
 		return nil, errors.New("malformed tweet")
 	}
-	proofBytes := base58.Decode(split[1])
+	proofBytes := base58.Decode(p)
 	var proof internal.Proof
 	if err := json.Unmarshal(proofBytes, &proof); err != nil {
 		return nil, err
 	}
 	return &internal.Tweet{
-		Tweet: split[0],
+		Tweet: t,
 		Proof: proof,
 	}, nil
 }

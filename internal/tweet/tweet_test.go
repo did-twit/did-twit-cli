@@ -22,7 +22,7 @@ func TestSignGenerateAndVerifyTweet(t *testing.T) {
 	err = VerifyTweet(*tweet, privKey.Public().(ed25519.PublicKey))
 	assert.NoError(t, err)
 
-	tweetString, err := GenerateTweet(*tweet)
+	tweetString, err := GenerateTweetText(*tweet)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, tweetString)
 
@@ -32,23 +32,42 @@ func TestSignGenerateAndVerifyTweet(t *testing.T) {
 
 func TestReconstructTweet(t *testing.T) {
 	// Generate DID
-	id, privKey, err := did.CreateDID("didtwitt3r")
+	id, privKey, err := did.CreateDID("didtwit")
 	assert.NoError(t, err)
 
-	tweet, err := SignTweet(privKey, *id, "welcome to api:twit")
-	assert.NoError(t, err)
+	t.Run("happy path", func(t *testing.T) {
+		tweet, err := SignTweet(privKey, *id, "welcome to did:twit")
+		assert.NoError(t, err)
 
-	err = VerifyTweet(*tweet, privKey.Public().(ed25519.PublicKey))
-	assert.NoError(t, err)
+		err = VerifyTweet(*tweet, privKey.Public().(ed25519.PublicKey))
+		assert.NoError(t, err)
 
-	tweetString, err := GenerateTweet(*tweet)
-	assert.NoError(t, err)
-	assert.NotEmpty(t, tweetString)
+		tweetString, err := GenerateTweetText(*tweet)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, tweetString)
 
-	// Reconstruct
-	reconstructed, err := ReconstructTweet(*tweetString)
-	assert.NoError(t, err)
-	assert.Equal(t, tweet, reconstructed)
+		// Reconstruct
+		reconstructed, err := ReconstructTweet(*tweetString)
+		assert.NoError(t, err)
+		assert.Equal(t, tweet, reconstructed)
+	})
+
+	t.Run("multi dots path", func(t *testing.T) {
+		tweet, err := SignTweet(privKey, *id, "welcome.to.did:twit")
+		assert.NoError(t, err)
+
+		err = VerifyTweet(*tweet, privKey.Public().(ed25519.PublicKey))
+		assert.NoError(t, err)
+
+		tweetString, err := GenerateTweetText(*tweet)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, tweetString)
+
+		// Reconstruct
+		reconstructed, err := ReconstructTweet(*tweetString)
+		assert.NoError(t, err)
+		assert.Equal(t, tweet, reconstructed)
+	})
 }
 
 // Tweets grow linearly in size
@@ -64,7 +83,7 @@ func TestTweetSize(t *testing.T) {
 		signedTweet, err := SignTweet(privKey, *id, tweet)
 		assert.NoError(t, err)
 
-		tweetString, err := GenerateTweet(*signedTweet)
+		tweetString, err := GenerateTweetText(*signedTweet)
 		assert.NoError(t, err)
 
 		fmt.Printf("Tweet of <%d>char size<%d>\n", i, len(*tweetString))

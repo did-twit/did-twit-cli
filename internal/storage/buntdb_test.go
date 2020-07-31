@@ -23,7 +23,7 @@ func TestStorage(t *testing.T) {
 	val, err = db.Read("missing")
 	assert.Error(t, err)
 	assert.Empty(t, val)
-	
+
 	// Close and try to write after closed
 	assert.NoError(t, db.Close())
 	assert.Error(t, db.Write("key", "val"))

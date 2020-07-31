@@ -14,5 +14,9 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-## IntelliJ
+# IntelliJ
 .idea/
+
+# Other
+storage.db
+*.db
