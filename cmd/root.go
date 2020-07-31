@@ -17,7 +17,7 @@ func init() {
 }
 
 var RootCmd = &cobra.Command{
-	Use:   "didtwit",
+	Use:   "did-twit-cli",
 	Short: "The did:twit cli",
 	Long:  `A utility for using the did:twit DID method for your Twitter username. Helps you create a did:twit document and generate Tweets.`,
 	Run: func(cmd *cobra.Command, args []string) {

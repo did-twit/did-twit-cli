@@ -10,13 +10,13 @@ This project is built with `go 1.14.3`.
 
 To install run:
 
-`go get github.com:did-twit/did-twit-cli.git` 
+`go install github.com/did-twit/did-twit-cli` 
 
 ## Running
 
-The cli may be accessed by using the `didtwit` command.
+The cli may be accessed by using the `did-twit-cli` command.
 
-For example `didtwit view` lists all DIDs registered to the storage.
+For example `did-twit-cli manage create --username="god"` creates a `did:twit:god` DID and stores the corresponding private key to local storage.
 
 ## Contributing
 

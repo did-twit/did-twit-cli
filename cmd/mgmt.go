@@ -58,7 +58,7 @@ var createDIDCmd = &cobra.Command{
 		}
 		user := viper.GetString(usernameFlag)
 		if user == "" {
-			return errors.New("usernameFlag cannot be empty")
+			return errors.New("username cannot be empty")
 		}
 		did, privKey, err := did.CreateDID(user)
 		if err != nil {
@@ -69,6 +69,7 @@ var createDIDCmd = &cobra.Command{
 			fmt.Printf("Problem writing did user: %s\n", user)
 			return err
 		}
+		fmt.Printf("DID created successfully:\n%s\n", *did)
 		return nil
 	},
 }
