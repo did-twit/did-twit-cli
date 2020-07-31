@@ -22,5 +22,10 @@ var RootCmd = &cobra.Command{
 	Long:  `A utility for using the did:twit DID method for your Twitter username. Helps you create a did:twit document and generate Tweets.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(cmd.UsageString())
+		// uncomment me to generate docs
+		//err := doc.GenMarkdownTree(cmd, "/tmp")
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
 	},
 }

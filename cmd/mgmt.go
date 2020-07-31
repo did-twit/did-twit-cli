@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/did-twit/did-twit-cli/internal/did"
-	"github.com/did-twit/did-twit-cli/internal/storage"
+	"github.com/did-twit/did-twit-cli/pkg/did"
+	"github.com/did-twit/did-twit-cli/pkg/storage"
 )
 
 func init() {

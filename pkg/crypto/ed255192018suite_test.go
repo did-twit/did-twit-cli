@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/did-twit/did-twit-cli/internal/did"
+	"github.com/did-twit/did-twit-cli/pkg/did"
 )
 
 func TestCanonicalize(t *testing.T) {
